@@ -4,6 +4,8 @@ SELECT
     ,permit.sDate AS start_date
     ,CASE 
         WHEN permit.chargeType = 'Weekly' THEN DATE_ADD(permit.sDate, INTERVAL 7 DAY) 
+        WHEN permit.chargeType = 'Monthly' THEN DATE_ADD(permit.sDate, INTERVAL 30 DAY) 
+        WHEN permit.chargeType = 'Yearly' THEN DATE_ADD(permit.sDate, INTERVAL 365 DAY) 
         ELSE permit.sDate
     END AS end_date
 FROM permit
