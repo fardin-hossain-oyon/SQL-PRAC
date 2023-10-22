@@ -1,0 +1,3 @@
+SELECT COUNT(*)
+FROM Product
+WHERE ListPrice > 1000
