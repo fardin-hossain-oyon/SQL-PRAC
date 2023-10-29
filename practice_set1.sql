@@ -610,6 +610,107 @@ WHERE t1.experience_years = t1.max_exp;
 
 
 --Q48
+SELECT *
+FROM Books_48
+JOIN
+(
+SELECT book_id, SUM(quantity) AS total_sold
+FROM Orders_48
+GROUP BY book_id
+) b
+ON Books_48.book_id = b.book_id
+WHERE TO_DATE('2019-06-23', 'YYYY-MM-DD') - Books_48.available_from > 30
+AND b.total_sold < 10
+;
+
+
+
+--Q49
+WITH CTE AS
+(
+SELECT e1.student_id, e1.course_id, e1.grade
+FROM(
+SELECT student_id, MAX(grade) AS max_grade
+FROM Enrollments
+GROUP BY student_id
+) t1, Enrollments e1
+WHERE t1.student_id = e1.student_id
+AND t1.max_grade = e1.grade
+)
+SELECT e2.student_id, e2.course_id, e2.grade
+FROM Enrollments e2
+JOIN (SELECT student_id, MIN(course_id) AS  c_id FROM CTE GROUP BY student_id) c
+ON e2.student_id = c.student_id AND e2.course_id = c.c_id
+;
+
+
+
+
+--Q50
+WITH CTE1 AS
+(
+SELECT Players.*, t1.wins
+FROM Players
+JOIN
+(
+SELECT winner, COUNT(*) AS wins
+FROM
+(
+SELECT
+    CASE
+        WHEN first_score > second_score THEN first_player
+        WHEN first_score < second_score THEN second_player
+        WHEN first_score = second_score AND first_player < second_player THEN first_player
+        ELSE second_player
+    END
+    AS winner
+FROM Matches
+)
+GROUP BY winner
+) t1
+ON Players.player_id = t1.winner
+),
+CTE2 AS
+(
+SELECT 
+    player_id
+    , group_id
+    , wins
+    , MAX(wins) OVER (PARTITION BY group_id) AS group_max_wins
+FROM CTE1
+),
+CTE3 AS
+(
+SELECT player_id, group_id, group_max_wins
+FROM CTE2
+WHERE wins = group_max_wins
+),
+CTE4 AS
+(
+SELECT player_id, group_id, group_max_wins, MIN(player_id) OVER (PARTITION BY group_id) AS min_group
+FROM CTE3
+)
+SELECT group_id, player_id
+FROM CTE4
+WHERE player_id = min_group;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
