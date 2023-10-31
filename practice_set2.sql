@@ -97,12 +97,72 @@ OR (lag_col = 1 AND NVL(lead_col, 0) = 0);
 
 
 --Q59
+SELECT name
+FROM Sales_person
+MINUS
+SELECT s.name
+FROM Orders o
+JOIN Company c ON o.com_id = c.com_id
+JOIN Sales_person s ON o.sales_id = s.sales_id
+WHERE c.name = 'RED';
 
 
 
+--Q60
+SELECT
+    x
+    , y
+    , z
+    , CASE
+        WHEN (x + y <= z) OR (x + z <= y) OR (y + z <= x)
+        THEN 'No'
+        ELSE 'Yes'
+    END
+    AS triangle
+FROM triangle;
 
 
 
+--Q61
+SELECT MIN(ABS(p1.x - p2.x)) AS shortest
+FROM Point p1, Point p2
+WHERE p1.x <> p2.x;
+
+
+
+--Q62
+SELECT actor_id, director_id
+FROM actor_director
+GROUP BY actor_id, director_id
+HAVING COUNT(*) >= 3;
+
+
+--Q63
+SELECT Sales.sale_id, Product.product_name, Sales.year, Sales.price
+FROM Product
+JOIN Sales ON Product.product_id = Sales.product_id
+ORDER BY Sales.sale_id;
+
+
+
+--Q64
+SELECT Project.project_id, ROUND(AVG(Employee.experience_years), 2)
+FROM Project
+JOIN Employee ON Project.employee_id = Employee.employee_id
+GROUP BY Project.project_id;
+
+
+
+--Q65
+WITH CTE AS
+(
+SELECT seller_id, SUM(price) AS total_price
+FROM Sales
+GROUP BY seller_id
+)
+SELECT seller_id
+FROM CTE
+WHERE total_price = (SELECT MAX(total_price) FROM CTE);
 
 
 
