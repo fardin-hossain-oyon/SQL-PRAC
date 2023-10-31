@@ -489,10 +489,10 @@ INSERT INTO product VALUES(1, 'S8', 1000);
 INSERT INTO product VALUES(2, 'G4', 800);
 INSERT INTO product VALUES(3, 'iPhone', 1400);
 
-INSERT INTO sales VALUES(1, 1, 1, '2019-01-21', 2, 2000);
-INSERT INTO sales VALUES(1, 2, 2, '2019-02-17', 1, 800);
-INSERT INTO sales VALUES(2, 1, 3, '2019-06-02', 1, 800);
-INSERT INTO sales VALUES(3, 3, 3, '2019-05-13', 2, 2800);
+INSERT INTO sales VALUES(1, 1, 1, TO_DATE('2019-01-21', 'YYYY-MM-DD'), 2, 2000);
+INSERT INTO sales VALUES(1, 2, 2, TO_DATE('2019-02-17', 'YYYY-MM-DD'), 1, 800);
+INSERT INTO sales VALUES(2, 1, 3, TO_DATE('2019-06-02', 'YYYY-MM-DD'), 1, 800);
+INSERT INTO sales VALUES(3, 3, 3, TO_DATE('2019-05-13', 'YYYY-MM-DD'), 2, 2800);
 
 
 
@@ -513,17 +513,17 @@ CREATE TABLE customer
   CONSTRAINT pk_customer PRIMARY KEY (customer_id, visited_on)
 );
 
-INSERT INTO customer VALUES(1, 'Jhon', '2019-01-01', 100);
-INSERT INTO customer VALUES(2, 'Daniel', '2019-01-02', 110);
-INSERT INTO customer VALUES(3, 'Jade', '2019-01-03', 120);
-INSERT INTO customer VALUES(4, 'Khaled', '2019-01-04', 130);
-INSERT INTO customer VALUES(5, 'Winston', '2019-01-05', 110);
-INSERT INTO customer VALUES(6, 'Elvis', '2019-01-06', 140);
-INSERT INTO customer VALUES(7, 'Anna', '2019-01-07', 150);
-INSERT INTO customer VALUES(8, 'Maria', '2019-01-08', 80);
-INSERT INTO customer VALUES(9, 'Jaze', '2019-01-09', 110);
-INSERT INTO customer VALUES(1, 'Jhon', '2019-01-10', 130);
-INSERT INTO customer VALUES(3, 'Jade', '2019-01-10', 150);
+INSERT INTO customer VALUES(1, 'Jhon', TO_DATE('2019-01-01', 'YYYY-MM-DD'), 100);
+INSERT INTO customer VALUES(2, 'Daniel', TO_DATE('2019-01-02', 'YYYY-MM-DD'), 110);
+INSERT INTO customer VALUES(3, 'Jade', TO_DATE('2019-01-03', 'YYYY-MM-DD'), 120);
+INSERT INTO customer VALUES(4, 'Khaled', TO_DATE('2019-01-04', 'YYYY-MM-DD'), 130);
+INSERT INTO customer VALUES(5, 'Winston', TO_DATE('2019-01-05', 'YYYY-MM-DD'), 110);
+INSERT INTO customer VALUES(6, 'Elvis', TO_DATE('2019-01-06', 'YYYY-MM-DD'), 140);
+INSERT INTO customer VALUES(7, 'Anna', TO_DATE('2019-01-07', 'YYYY-MM-DD'), 150);
+INSERT INTO customer VALUES(8, 'Maria', TO_DATE('2019-01-08', 'YYYY-MM-DD'), 80);
+INSERT INTO customer VALUES(9, 'Jaze', TO_DATE('2019-01-09', 'YYYY-MM-DD'), 110);
+INSERT INTO customer VALUES(1, 'Jhon', TO_DATE('2019-01-10', 'YYYY-MM-DD'), 130);
+INSERT INTO customer VALUES(3, 'Jade', TO_DATE('2019-01-10', 'YYYY-MM-DD'), 150);
 
 
 --drop tables
@@ -542,15 +542,15 @@ CREATE TABLE scores
   CONSTRAINT pk_scores PRIMARY KEY (gender, day)
 );
 
-INSERT INTO scores VALUES('Aron', 'F', '2020-01-01', 17);
-INSERT INTO scores VALUES('Alice', 'F', '2020-01-07', 23);
-INSERT INTO scores VALUES('Bajrang', 'M', '2020-01-07', 7);
-INSERT INTO scores VALUES('Khali' , 'M', '2019-12-25', 11);
-INSERT INTO scores VALUES('Slaman', 'M', '2019-12-30', 13);
-INSERT INTO scores VALUES('Joe', 'M', '2019-12-31', 3);
-INSERT INTO scores VALUES('Jose', 'M', '2019-12-18', 2);
-INSERT INTO scores VALUES('Priya', 'F', '2019-12-31', 23);
-INSERT INTO scores VALUES('Priyanka', 'F', '2019-12-30', 17);
+INSERT INTO scores VALUES('Aron', 'F', TO_DATE('2020-01-01', 'YYYY-MM-DD'), 17);
+INSERT INTO scores VALUES('Alice', 'F', TO_DATE('2020-01-07', 'YYYY-MM-DD'), 23);
+INSERT INTO scores VALUES('Bajrang', 'M', TO_DATE('2020-01-07', 'YYYY-MM-DD'), 7);
+INSERT INTO scores VALUES('Khali' , 'M', TO_DATE('2019-12-25', 'YYYY-MM-DD'), 11);
+INSERT INTO scores VALUES('Slaman', 'M', TO_DATE('2019-12-30', 'YYYY-MM-DD'), 13);
+INSERT INTO scores VALUES('Joe', 'M', TO_DATE('2019-12-31', 'YYYY-MM-DD'), 3);
+INSERT INTO scores VALUES('Jose', 'M', TO_DATE('2019-12-18', 'YYYY-MM-DD'), 2);
+INSERT INTO scores VALUES('Priya', 'F', TO_DATE('2019-12-31', 'YYYY-MM-DD'), 23);
+INSERT INTO scores VALUES('Priyanka', 'F', TO_DATE('2019-12-30', 'YYYY-MM-DD'), 17);
 
 
 

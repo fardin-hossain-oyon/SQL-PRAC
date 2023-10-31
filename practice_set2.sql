@@ -166,6 +166,86 @@ WHERE total_price = (SELECT MAX(total_price) FROM CTE);
 
 
 
+--Q66
+WITH CTE AS
+(
+SELECT buyer_id, Product.product_name
+FROM Product
+JOIN Sales ON Product.product_id = Sales.product_id
+)
+SELECT buyer_id
+FROM CTE
+WHERE product_name = 'S8'
+MINUS
+SELECT buyer_id
+FROM CTE
+WHERE product_name = 'iPhone';
+
+
+
+--Q67
+WITH CTE1 AS
+(
+SELECT
+    visited_on, amount
+    , ROW_NUMBER() OVER (ORDER BY visited_on) AS row_num
+FROM Customer
+),
+CTE2 AS
+(
+SELECT
+    visited_on
+    , amount
+    , row_num
+FROM CTE1
+WHERE row_num >= 7
+),
+CTE3 AS
+(
+SELECT DISTINCT
+    CTE1.visited_on AS cte1_vo
+    , CTE2.visited_on AS cte2_vo
+    , CTE1.amount
+FROM CTE1
+JOIN CTE2 ON CTE1.visited_on BETWEEN CTE2.visited_on - 6 AND CTE2.visited_on
+)
+SELECT 
+    cte2_vo AS visited_on
+    , SUM(amount) AS amount
+    , ROUND(SUM(amount)/7,2) AS average_amount
+FROM CTE3
+GROUP BY cte2_vo
+ORDER BY cte2_vo;
+
+
+
+
+--Q68
+WITH CTE AS
+(
+SELECT gender, day, SUM(score_points) AS total
+FROM Scores
+GROUP BY gender, day
+ORDER BY gender ASC, day ASC
+)
+SELECT
+    gender
+    , day
+    , total
+    , total + LAG(total,1) OVER (PARTITION BY gender ORDER BY day) AS cumulative_tot
+FROM CTE
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
