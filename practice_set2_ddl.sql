@@ -588,7 +588,7 @@ CREATE TABLE students
 CREATE TABLE subjects
 (
   subject_name VARCHAR(25),
-  CONSTRAINT pk_students PRIMARY KEY (subject_name)
+  CONSTRAINT pk_subjects PRIMARY KEY (subject_name)
 );
 
 CREATE TABLE examinations
@@ -667,10 +667,10 @@ CREATE TABLE transactions
   CONSTRAINT pk_trx PRIMARY KEY(id)
 );
 
-INSERT INTO transactions VALUES(121, 'US', 'approved', 1000, '2018-12-18');
-INSERT INTO transactions VALUES(122, 'US', 'declined', 2000, '2018-12-19');
-INSERT INTO transactions VALUES(123, 'US', 'approved', 2000, '2019-01-01');
-INSERT INTO transactions VALUES(124, 'DE', 'approved', 2000, '2019-01-07');
+INSERT INTO transactions VALUES(121, 'US', 'approved', 1000, TO_DATE('2018-12-18', 'YYYY-MM-DD'));
+INSERT INTO transactions VALUES(122, 'US', 'declined', 2000, TO_DATE('2018-12-19', 'YYYY-MM-DD'));
+INSERT INTO transactions VALUES(123, 'US', 'approved', 2000, TO_DATE('2019-01-01', 'YYYY-MM-DD'));
+INSERT INTO transactions VALUES(124, 'DE', 'approved', 2000, TO_DATE('2019-01-07', 'YYYY-MM-DD'));
 
 
 
@@ -695,22 +695,22 @@ CREATE TABLE removals
   remove_date DATE
 );
 
-INSERT INTO actions VALUES(1, 1, '2019-07-01','view', null);
-INSERT INTO actions VALUES(1, 1, '2019-07-01', 'like', null);
-INSERT INTO actions VALUES(1, 1, '2019-07-01', 'share', null);
-INSERT INTO actions VALUES(2, 2, '2019-07-04', 'view', null);
-INSERT INTO actions VALUES(2, 2, '2019-07-04', 'report', 'spam');
-INSERT INTO actions VALUES(3, 4, '2019-07-04', 'view', null);
-INSERT INTO actions VALUES(3, 4, '2019-07-04', 'report', 'spam');
-INSERT INTO actions VALUES(4, 3, '2019-07-02', 'view', null);
-INSERT INTO actions VALUES(4, 3, '2019-07-02', 'report', 'spam');
-INSERT INTO actions VALUES(5, 2, '2019-07-03', 'view', null);
-INSERT INTO actions VALUES(5, 2, '2019-07-03', 'report', 'racism');
-INSERT INTO actions VALUES(5, 5, '2019-07-03', 'view', null);
-INSERT INTO actions VALUES(5, 5, '2019-07-03', 'report', 'racism');
+INSERT INTO actions VALUES(1, 1, TO_DATE('2019-07-01', 'YYYY-MM-DD') ,'view', null);
+INSERT INTO actions VALUES(1, 1, TO_DATE('2019-07-01', 'YYYY-MM-DD') , 'like', null);
+INSERT INTO actions VALUES(1, 1, TO_DATE('2019-07-01', 'YYYY-MM-DD') , 'share', null);
+INSERT INTO actions VALUES(2, 2, TO_DATE('2019-07-04', 'YYYY-MM-DD') , 'view', null);
+INSERT INTO actions VALUES(2, 2, TO_DATE('2019-07-04', 'YYYY-MM-DD') , 'report', 'spam');
+INSERT INTO actions VALUES(3, 4, TO_DATE('2019-07-04', 'YYYY-MM-DD') , 'view', null);
+INSERT INTO actions VALUES(3, 4, TO_DATE('2019-07-04', 'YYYY-MM-DD') , 'report', 'spam');
+INSERT INTO actions VALUES(4, 3, TO_DATE('2019-07-02', 'YYYY-MM-DD') , 'view', null);
+INSERT INTO actions VALUES(4, 3, TO_DATE('2019-07-02', 'YYYY-MM-DD') , 'report', 'spam');
+INSERT INTO actions VALUES(5, 2, TO_DATE('2019-07-03', 'YYYY-MM-DD') , 'view', null);
+INSERT INTO actions VALUES(5, 2, TO_DATE('2019-07-03', 'YYYY-MM-DD') , 'report', 'racism');
+INSERT INTO actions VALUES(5, 5, TO_DATE('2019-07-03', 'YYYY-MM-DD') , 'view', null);
+INSERT INTO actions VALUES(5, 5, TO_DATE('2019-07-03', 'YYYY-MM-DD') , 'report', 'racism');
 
-INSERT INTO removals VALUES(2, '2019-07-20');
-INSERT INTO removals VALUES(3, '2019-07-18');
+INSERT INTO removals VALUES(2, TO_DATE('2019-07-20', 'YYYY-MM-DD') );
+INSERT INTO removals VALUES(3, TO_DATE('2019-07-18', 'YYYY-MM-DD') );
 
 
 
@@ -731,11 +731,11 @@ CREATE TABLE activity
   CONSTRAINT pk_activity PRIMARY KEY(player_id, event_date)
 );
 
-INSERT INTO activity VALUES(1, 2, '2016-03-01', 5);
-INSERT INTO activity VALUES(1 ,2, '2016-03-02', 6);
-INSERT INTO activity VALUES(2, 3, '2017-06-25', 1);
-INSERT INTO activity VALUES(3, 1, '2016-03-02', 0);
-INSERT INTO activity VALUES(3, 4, '2018-07-03', 5);
+INSERT INTO activity VALUES(1, 2, TO_DATE('2016-03-01', 'YYYY-MM-DD'), 5);
+INSERT INTO activity VALUES(1 ,2, TO_DATE('2016-03-02', 'YYYY-MM-DD'), 6);
+INSERT INTO activity VALUES(2, 3, TO_DATE('2017-06-25', 'YYYY-MM-DD'), 1);
+INSERT INTO activity VALUES(3, 1, TO_DATE('2016-03-02', 'YYYY-MM-DD'), 0);
+INSERT INTO activity VALUES(3, 4, TO_DATE('2018-07-03', 'YYYY-MM-DD'), 5);
 
 
 --drop tables

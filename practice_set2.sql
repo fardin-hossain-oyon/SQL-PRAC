@@ -229,11 +229,231 @@ GROUP BY gender, day
 ORDER BY gender ASC, day ASC
 )
 SELECT
-    gender
-    , day
-    , total
-    , total + LAG(total,1) OVER (PARTITION BY gender ORDER BY day) AS cumulative_tot
+    c1.gender
+    , c1.day
+--    , c2.day
+    , SUM(c2.total)
+FROM CTE c1
+JOIN CTE c2 ON (c1.gender = c2.gender AND c1.day >= c2.day)
+GROUP BY c1.gender, c1.day
+ORDER BY c1.gender, c1.day;
+
+
+
+--Q69
+WITH CTE AS 
+(
+SELECT
+    log_id
+    , LEAD(log_id) OVER (ORDER BY log_id) AS lead_col
+    , LAG(log_id) OVER (ORDER BY log_id) AS lag_col
+FROM Logs
+),
+CTE2 AS
+(
+SELECT log_id AS start_id, ROW_NUMBER() OVER (ORDER BY log_id) AS end_id
 FROM CTE
+WHERE lag_col IS NULL OR (log_id - lag_col > 1)
+),
+CTE3 AS
+(
+SELECT ROW_NUMBER() OVER (ORDER BY log_id) AS start_id, log_id AS end_id
+FROM CTE
+WHERE lead_col IS NULL OR (lead_col - log_id > 1 )
+)
+SELECT CTE2.start_id, CTE3.end_id
+FROM CTE2
+JOIN CTE3 ON CTE2.end_id = CTE3.start_id;
+
+
+
+
+--Q70
+SELECT
+    t1.student_id
+    , t1.student_name
+    , t1.subject_name
+    , COUNT(Examinations.subject_name) AS attended_exams
+FROM
+(
+SELECT *
+FROM Students
+JOIN Subjects ON 1=1
+--ORDER BY student_id
+) t1
+LEFT JOIN Examinations
+ON t1.student_id = Examinations.student_id
+AND t1.subject_name = Examinations.subject_name
+GROUP BY
+    t1.student_id
+    , t1.student_name
+    , t1.subject_name
+ORDER BY t1.student_id;
+
+
+
+
+--Q71
+WITH CTE AS
+(
+SELECT
+    e3.*
+    , e.manager_id AS manager_3
+FROM Employees e
+JOIN
+(
+SELECT
+    e1.employee_id
+    , e1.manager_id AS manager_1
+    , e2.manager_id AS manager_2
+FROM Employees e1
+JOIN Employees e2
+ON e1.manager_id = e2.employee_id
+) e3
+ON e3.manager_2 = e.employee_id
+)
+SELECT employee_id
+FROM CTE
+WHERE manager_3 = 1 AND employee_id <> 1;
+
+
+--Q72
+WITH CTE AS
+(
+SELECT
+    TO_CHAR(trans_date, 'YYYY-MM') AS month
+    , country
+    , CASE
+        WHEN state = 'approved' THEN 1
+        ELSE 0
+    END
+    AS approved_or_not
+    , CASE
+        WHEN state = 'approved' THEN amount
+        ELSE 0
+    END
+    AS approved_amount
+    , amount
+FROM Transactions
+)
+SELECT
+    month
+    , country
+    , COUNT(*) AS trans_count
+    , SUM(approved_or_not) AS approved_count
+    , SUM(amount) AS trans_total_amount
+    , SUM(approved_amount) AS approved_total_amount
+FROM CTE
+GROUP BY month, country;
+
+
+
+--Q73
+WITH CTE AS
+(
+SELECT
+    DISTINCT
+    t1.post_id
+    , t1.action_date
+    , Removals.post_id AS rem_pid
+FROM
+(
+SELECT
+    post_id
+    , action_date
+FROM Actions
+WHERE action = 'report' AND extra = 'spam'
+) t1
+LEFT JOIN Removals ON t1.post_id = Removals.post_id
+),
+CTE2 AS
+(
+SELECT
+    CTE.action_date
+    , (COUNT(CTE.rem_pid)/COUNT(*)) * 100 AS percentage
+FROM CTE
+GROUP BY CTE.action_date
+)
+SELECT AVG(percentage) AS average_daily_percentage
+FROM CTE2;
+
+
+
+--Q74
+WITH CTE AS
+(
+SELECT COUNT(*) AS total_cons
+FROM 
+(
+SELECT DISTINCT player_id AS pid_1
+FROM
+(
+SELECT
+    player_id
+    , event_date
+    , LEAD(event_date, 1) OVER (ORDER BY player_id, event_date) AS lead_col
+FROM Activity
+)
+WHERE lead_col - event_date = 1
+)
+),
+CTE2 AS
+(
+SELECT COUNT(*) AS total_players
+FROM(
+SELECT DISTINCT player_id AS pid_2
+FROM Activity
+)
+)
+SELECT 
+    ROUND(CTE.total_cons / CTE2. total_players, 2) AS fraction
+FROM CTE, CTE2
+;
+
+
+
+
+--Q75
+--SAME AS Q74
+
+
+
+--Q76
+WITH CTE AS
+(
+SELECT
+    s.company_id
+    , s.employee_id
+    , s.employee_name
+    , s.salary
+    , t1.max_sal
+FROM Salaries s
+JOIN 
+(
+SELECT company_id, MAX(salary) AS max_sal
+FROM Salaries
+GROUP BY company_id
+) t1
+ON s.company_id = t1.company_id
+)
+SELECT
+    company_id
+    , employee_id
+    , employee_name
+    , CASE
+        WHEN max_sal < 1000 THEN salary
+        WHEN max_sal >= 1000 AND max_sal <=10000
+            THEN ROUND(salary - salary * 0.24)
+        ELSE ROUND(salary - salary * 0.49)
+    END
+    AS salary
+FROM CTE;
+
+
+
+
+
+
 
 
 
