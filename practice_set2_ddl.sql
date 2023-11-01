@@ -808,7 +808,7 @@ CREATE TABLE variables
 CREATE TABLE expressions
 (
   left_operand VARCHAR(5),
-  operator ENUM('<', '>', '='),
+  operator VARCHAR(1),
   right_operand VARCHAR(5),
   CONSTRAINT pk_expressions PRIMARY KEY(left_operand, operator, right_operand)
 );
@@ -928,10 +928,10 @@ CREATE TABLE user_transactions
 );
 
 
-INSERT INTO user_transactions VALUES(1341, 123424, 1500.60, '2019-12-31');
-INSERT INTO user_transactions VALUES(1423, 123424, 1000.20, '2020-12-31');
-INSERT INTO user_transactions VALUES(1623, 123424, 1246.44, '2021-12-31');
-INSERT INTO user_transactions VALUES(1322, 123424, 2145.32, '2022-12-31');
+INSERT INTO user_transactions VALUES(1341, 123424, 1500.60, TO_DATE('2019-12-31', 'YYYY-MM-DD'));
+INSERT INTO user_transactions VALUES(1423, 123424, 1000.20, TO_DATE('2020-12-31', 'YYYY-MM-DD'));
+INSERT INTO user_transactions VALUES(1623, 123424, 1246.44, TO_DATE('2021-12-31', 'YYYY-MM-DD'));
+INSERT INTO user_transactions VALUES(1322, 123424, 2145.32, TO_DATE('2022-12-31', 'YYYY-MM-DD'));
 
 
 

@@ -451,12 +451,73 @@ FROM CTE;
 
 
 
+--Q77
+WITH CTE AS
+(
+SELECT
+    left_operand
+    , (SELECT value FROM Variables WHERE name = left_operand) AS left_val
+    , operator
+    , right_operand
+    , (SELECT value FROM Variables WHERE name = right_operand) AS right_val
+FROM Expressions
+)
+SELECT
+    left_operand
+    , operator
+    , right_operand
+    , CASE
+        WHEN operator='<'
+            THEN 
+                CASE
+                    WHEN left_val < right_val THEN 'true'
+                    ELSE 'false'
+                END
+        WHEN operator='>'
+            THEN
+                CASE
+                    WHEN left_val > right_val THEN 'true'
+                    ELSe 'false'
+                END
+        WHEN operator='='
+            THEN
+                CASE
+                    WHEN left_val = right_val THEN 'true'
+                    ELSE 'false'
+                END
+        END
+        AS value
+FROM CTE;
+                
+
+
+--Q78
+--SAME AS Q55
 
 
 
+--Q79
+SELECT name FROM Employee ORDER BY name;
 
 
 
+--Q80
+SELECT
+    year
+    , product_id
+    , curr_year_spend
+    , prev_year_spend
+    ,ROUND(((curr_year_spend - prev_year_spend) / prev_year_spend) * 100, 2) AS yoy_rate
+FROM
+(
+SELECT
+    TO_CHAR(transaction_date, 'YYYY') AS year
+    , product_id
+    , spend as curr_year_spend
+    , LAG(spend, 1) OVER (ORDER BY transaction_date) AS prev_year_spend
+FROM User_transactions
+)
+;
 
 
 
