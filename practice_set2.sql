@@ -521,6 +521,136 @@ FROM User_transactions
 
 
 
+--Q81
+WITH CTE AS
+(
+SELECT
+    t1.item_type
+    , t1.item_count
+    , t2.square_footage
+    , FLOOR( 500000 / t2.square_footage) * t2.square_footage
+     AS sq_ft
+     , FLOOR( 500000 / t2.square_footage) * t1.item_count AS total_items
+FROM
+(
+SELECT
+    item_type
+    , COUNT(*) AS item_count
+FROM Inventory
+GROUP BY item_type
+) t1
+JOIN 
+(
+SELECT
+    item_type
+    , SUM(square_footage) AS square_footage
+FROM Inventory
+GROUP BY item_type
+) t2
+ON t1.item_type = t2.item_type
+)
+--SELECT * FROM CTE
+SELECT
+    item_type
+    , CASE
+        WHEN item_type = 'prime_eligible'
+            THEN total_items
+        ELSE
+            FLOOR( (500000 - (SELECT sq_ft FROM CTE WHERE item_type = 'prime_eligible')) / CTE.square_footage) * CTE.item_count
+        END
+        AS item_count
+FROM CTE
+;
+
+
+
+--Q82
+WITH CTE AS
+(
+SELECT
+    DISTINCT
+        month
+        , user_id
+FROM
+(
+SELECT
+    user_id
+    , LTRIM( TO_CHAR(event_date, 'MM'), '0') AS month
+FROM user_actions
+WHERE event_type IN ('sign-in', 'like', 'comment')
+)
+)
+SELECT
+    c2.month
+    , COUNT(DISTINCT c2.user_id) AS monthly_active_users
+FROM CTE c1
+JOIN CTE c2 ON c1.month = c2.month - 1 AND c1.user_id = c2.user_id
+WHERE c2.month = 6
+GROUP BY c2.month;
+
+
+
+
+--Q83
+SELECT MEDIAN(num_users) AS median_num_users
+FROM search_frequency;
+
+
+--Q84
+SELECT
+    user_id
+    , CASE
+        WHEN (status='NEW' OR status='EXISTING') AND paid IS NOT NULL 
+            THEN 'EXISTING'
+        WHEN (status='NEW' OR status='EXISTING') AND paid IS NULL
+            THEN 'CHURN'
+        WHEN status='CHURN' AND paid IS NOT NULL
+            THEN 'RESURRECT'
+        WHEN status='CHURN' AND paid IS NULL
+            THEN 'CHURN'
+        ELSE
+            'RESURRECT'
+        END
+        AS new_status
+FROM
+(
+SELECT
+    advertiser.user_id
+    , advertiser.status
+    , daily_pay.paid
+FROM advertiser
+LEFT JOIN daily_pay ON advertiser.user_id = daily_pay.user_id
+)
+ORDER BY user_id;
+
+
+
+
+
+--Q85
+WITH CTE AS
+(
+SELECT
+    server_id
+    , session_status
+    , status_time
+    , prev_time
+    , EXTRACT(DAY FROM (status_time - prev_time)) AS uptime_days
+FROM
+(
+SELECT
+    server_id
+    , status_time
+    , session_status
+    , LAG(session_status, 1) OVER (ORDER BY server_id, status_time) AS prev_status
+    , LAG(status_time, 1) OVER (ORDER BY server_id, status_time) AS prev_time
+FROM server_utilization
+)
+WHERE session_status = 'stop'
+)
+SELECT
+    SUM(uptime_days) AS total_uptime_days
+FROM CTE;
 
 
 

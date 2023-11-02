@@ -974,11 +974,11 @@ CREATE TABLE user_actions
   event_date DATE
 );
 
-INSERT INTO user_actions VALUES(445, 7765 , 'sign-in', '2022-05-31');
-INSERT INTO user_actions VALUES(742, 6458, 'sign-in', '2022-06-03');
-INSERT INTO user_actions VALUES(445, 3634, 'like', '2022-06-05');
-INSERT INTO user_actions VALUES(742, 1374, 'comment', '2022-06-05');
-INSERT INTO user_actions VALUES(648, 3124, 'like', '2022-06-18');
+INSERT INTO user_actions VALUES(445, 7765 , 'sign-in', TO_DATE('2022-05-31', 'YYYY-MM-DD'));
+INSERT INTO user_actions VALUES(742, 6458, 'sign-in', TO_DATE('2022-06-03', 'YYYY-MM-DD'));
+INSERT INTO user_actions VALUES(445, 3634, 'like', TO_DATE('2022-06-05', 'YYYY-MM-DD'));
+INSERT INTO user_actions VALUES(742, 1374, 'comment', TO_DATE('2022-06-05', 'YYYY-MM-DD'));
+INSERT INTO user_actions VALUES(648, 3124, 'like', TO_DATE('2022-06-18', 'YYYY-MM-DD'));
 
 
 
@@ -1055,10 +1055,10 @@ CREATE TABLE server_utilization
   session_status VARCHAR(10)
 );
 
-INSERT INTO server_utilization VALUES(1, '2022-08-02 10:00:00', 'start');
-INSERT INTO server_utilization VALUES(1, '2022-08-04 10:00:00', 'stop');
-INSERT INTO server_utilization VALUES(2, '2022-08-17 10:00:00', 'start');
-INSERT INTO server_utilization VALUES(2, '2022-08-24 10:00:00', 'stop');
+INSERT INTO server_utilization VALUES(1, TIMESTAMP '2022-08-02 10:00:00', 'start');
+INSERT INTO server_utilization VALUES(1, TIMESTAMP '2022-08-04 10:00:00', 'stop');
+INSERT INTO server_utilization VALUES(2, TIMESTAMP '2022-08-17 10:00:00', 'start');
+INSERT INTO server_utilization VALUES(2, TIMESTAMP '2022-08-24 10:00:00', 'stop');
 
 
 
