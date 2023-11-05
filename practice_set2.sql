@@ -656,6 +656,63 @@ FROM CTE;
 
 
 
+--Q86
+SELECT COUNT(*) AS payment_count 
+FROM
+(
+SELECT
+    t1.merchant_id
+    , t2.merchant_id
+    , t1.transaction_id
+    , t2.transaction_id
+    , t1.transaction_timestamp - t2.transaction_timestamp AS diff
+FROM transactions t1, transactions t2
+WHERE t1.merchant_id = t2.merchant_id
+AND t1.credit_card_id = t2.credit_card_id
+AND t1.amount = t2.amount
+AND EXTRACT(MINUTE FROM (t1.transaction_timestamp - t2.transaction_timestamp)) < 10
+AND EXTRACT(MINUTE FROM (t1.transaction_timestamp - t2.transaction_timestamp)) > 0
+);
+
+
+
+--Q87
+WITH CTE AS
+(
+SELECT
+    CASE
+        WHEN status='completed incorrectly' OR status='never_received'
+            THEN 1
+        ELSE 0
+    END
+    AS bad_exp_y_n
+FROM Customers
+JOIN Orders ON Orders.customer_id = Customers.customer_id
+JOIN trips ON Orders.trip_id = trips.trip_id
+WHERE EXTRACT(MONTH FROM signup_timestamp) = 6
+AND EXTRACT(DAY FROM order_timestamp - signup_timestamp) <= 14
+)
+SELECT ROUND((SUM(bad_exp_y_n)/COUNT(*))*100, 2) AS bad_experience_pct
+FROM CTE;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
