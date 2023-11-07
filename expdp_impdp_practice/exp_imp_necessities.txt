@@ -4,16 +4,18 @@ ALTER USER scott QUOTA UNLIMITED ON USERS;
 GRANT CREATE SESSION TO SCOTT;
 GRANT IMP_FULL_DATABASE TO SCOTT;
 GRANT EXP_FULL_DATABASE TO SCOTT;
+GRANT READ, WRITE ON DIRECTORY test_dir TO scott;
 
 CREATE USER practice IDENTIFIED BY oracle;
 GRANT CONNECT, RESOURCE TO practice;
 ALTER USER practice QUOTA UNLIMITED ON USERS;
+GRANT READ, WRITE ON DIRECTORY test_dir TO practice;
 
 
 CREATE OR REPLACE DIRECTORY test_dir AS '/opt/oracle/userhome/oracle/exp_imp_test/';
 
-GRANT READ, WRITE ON DIRECTORY test_dir TO practice;
-GRANT READ, WRITE ON DIRECTORY test_dir TO scott;
+
+
 
 
 commit;
@@ -38,6 +40,40 @@ impdp scott/tiger@freepdb1 schemas=practice directory=test_dir dumpfile=schema_e
 expdp scott/tiger@freepdb1 full=Y directory=test_dir dumpfile=full_database_export.dmp logfile=full_database_export.log
 
 impdp scott/tiger@freepdb1 full=Y directory=test_dir dumpfile=full_database_export.dmp logfile=full_database_import.log
+
+
+
+-- using INCLUDE AND EXCLUDE clause
+
+--expdp practice/oracle@freepdb1 schemas=practice include=TABLE:"IN ('WEATHER', 'CITY')" directory=test_dir dumpfile=include_tables.dmp logfile=include_tables.log
+expdp practice/oracle@freepdb1 schemas=practice include=table:"IN\(\'WEATHER\'\,\'CITY\'\)" directory=test_dir dumpfile=include_tables.dmp logfile=include_tables.log
+
+impdp practice/oracle@freepdb1 tables=CITY, WEATHER directory=test_dir dumpfile=include_tables.dmp logfile=include_import_table.log
+
+
+
+-- import and rename table
+
+impdp practice/oracle@freepdb1 TABLES=CITY directory=test_dir dumpfile=city_table.dmp logfile=remap_log.log REMAP_TABLE=CITY:CITY_REMAPPED
+
+
+-- export tablespace
+
+expdp practice/oracle@freepdb1 DIRECTORY=test_dir DUMPFILE=tablespaces_exp.dmp LOGFILE=tablespaces_exp.log TABLESPACES=my_space
+impdp directory=test_dir dumpfile=tablespaces_exp.dmp
+
+
+
+-- export and import from different user
+
+expdp scott/tiger@freepdb1 tables=scott_city directory=test_dir dumpfile=scott_city_table.dmp logfile=scott_city_table.log
+
+impdp practice/oracle@freepdb1 tables='SCOTT.SCOTT_CITY' directory=test_dir dumpfile=scott_city_table.dmp logfile=scott_city_table_exp.log REMAP_SCHEMA=scott:practice
+
+
+
+
+
 
 
 
