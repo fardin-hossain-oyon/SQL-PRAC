@@ -1,0 +1,39 @@
+CREATE USER scott IDENTIFIED BY tiger;
+ALTER USER scott IDENTIFIED BY tiger ACCOUNT UNLOCK;
+ALTER USER scott QUOTA UNLIMITED ON USERS;
+GRANT CREATE SESSION TO SCOTT;
+GRANT IMP_FULL_DATABASE TO SCOTT;
+
+CREATE USER practice IDENTIFIED BY oracle;
+GRANT CONNECT, RESOURCE TO practice;
+ALTER USER practice QUOTA UNLIMITED ON USERS;
+
+
+CREATE OR REPLACE DIRECTORY test_dir AS '/opt/oracle/userhome/oracle/exp_imp_test/';
+
+GRANT READ, WRITE ON DIRECTORY test_dir TO practice;
+GRANT READ, WRITE ON DIRECTORY test_dir TO scott;
+
+
+commit;
+
+-- table export and import
+
+expdp practice/oracle@freepdb1 tables=CITY directory=test_dir dumpfile=city_table.dmp logfile=expdp_city_table.log
+
+impdp practice/oracle@freepdb1 tables=CITY directory=test_dir dumpfile=city_table.dmp logfile=impdp_city_table.log
+
+
+-- schema export and import
+
+expdp practice/oracle@freepdb1 schemas=practice directory=test_dir dumpfile=schema_export.dmp logfile=schema_export.log
+
+impdp sys/oracle@freepdb1 AS sysdba schemas=practice directory=test_dir dumpfile=schema_export.dmp logfile=schema_import.log
+
+impdp scott/tiger@freepdb1 schemas=practice directory=test_dir dumpfile=schema_export.dmp logfile=schema_import.log
+
+
+
+
+SELECT directory_name, directory_path
+FROM dba_directories;
