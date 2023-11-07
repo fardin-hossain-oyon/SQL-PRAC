@@ -3,6 +3,7 @@ ALTER USER scott IDENTIFIED BY tiger ACCOUNT UNLOCK;
 ALTER USER scott QUOTA UNLIMITED ON USERS;
 GRANT CREATE SESSION TO SCOTT;
 GRANT IMP_FULL_DATABASE TO SCOTT;
+GRANT EXP_FULL_DATABASE TO SCOTT;
 
 CREATE USER practice IDENTIFIED BY oracle;
 GRANT CONNECT, RESOURCE TO practice;
@@ -28,12 +29,22 @@ impdp practice/oracle@freepdb1 tables=CITY directory=test_dir dumpfile=city_tabl
 
 expdp practice/oracle@freepdb1 schemas=practice directory=test_dir dumpfile=schema_export.dmp logfile=schema_export.log
 
-impdp sys/oracle@freepdb1 AS sysdba schemas=practice directory=test_dir dumpfile=schema_export.dmp logfile=schema_import.log
-
 impdp scott/tiger@freepdb1 schemas=practice directory=test_dir dumpfile=schema_export.dmp logfile=schema_import.log
+
+
+
+-- full database export and import
+
+expdp scott/tiger@freepdb1 full=Y directory=test_dir dumpfile=full_database_export.dmp logfile=full_database_export.log
+
+impdp scott/tiger@freepdb1 full=Y directory=test_dir dumpfile=full_database_export.dmp logfile=full_database_import.log
+
+
+
 
 
 
 
 SELECT directory_name, directory_path
 FROM dba_directories;
+
