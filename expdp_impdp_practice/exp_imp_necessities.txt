@@ -60,7 +60,12 @@ impdp practice/oracle@freepdb1 TABLES=CITY directory=test_dir dumpfile=city_tabl
 -- export tablespace
 
 expdp practice/oracle@freepdb1 DIRECTORY=test_dir DUMPFILE=tablespaces_exp.dmp LOGFILE=tablespaces_exp.log TABLESPACES=my_space
+
 impdp directory=test_dir dumpfile=tablespaces_exp.dmp
+
+-- import tablespace and remap
+
+impdp practice/oracle@freepdb1 DIRECTORY=test_dir DUMPFILE=tablespaces_exp.dmp LOGFILE=tablespaces_imp.log REMAP_TABLESPACE=my_space:remapped_my_space
 
 
 
@@ -69,6 +74,11 @@ impdp directory=test_dir dumpfile=tablespaces_exp.dmp
 expdp scott/tiger@freepdb1 tables=scott_city directory=test_dir dumpfile=scott_city_table.dmp logfile=scott_city_table.log
 
 impdp practice/oracle@freepdb1 tables='SCOTT.SCOTT_CITY' directory=test_dir dumpfile=scott_city_table.dmp logfile=scott_city_table_exp.log REMAP_SCHEMA=scott:practice
+
+
+
+
+
 
 
 
