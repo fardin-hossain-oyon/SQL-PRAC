@@ -697,6 +697,241 @@ FROM CTE;
 
 
 
+--Q88
+--SAME AS Q68
+WITH CTE AS
+(
+SELECT gender, day, SUM(score_points) AS total
+FROM Scores
+GROUP BY gender, day
+ORDER BY gender ASC, day ASC
+)
+SELECT
+    c1.gender
+    , c1.day
+--    , c2.day
+    , SUM(c2.total)
+FROM CTE c1
+JOIN CTE c2 ON (c1.gender = c2.gender AND c1.day >= c2.day)
+GROUP BY c1.gender, c1.day
+ORDER BY c1.gender, c1.day;
+
+
+--Q89
+--SAME AS Q55
+WITH CTE AS
+(
+SELECT Country.name, AVG(duration) as duration
+FROM Person
+JOIN Calls ON Person.id = Calls.caller_id OR Person.id = Calls.callee_id
+JOIN Country ON LTRIM(SUBSTR(phone_number, 1, 3), '0') = Country.country_code
+GROUP BY Country.name
+)
+SELECT name
+FROM CTE
+WHERE duration > (SELECT SUM(duration)/COUNT(*) FROM Calls)
+;
+
+
+
+--Q90
+
+SELECT
+    Numbers.*
+    , SUM(Numbers.frequency) OVER (ORDER BY Numbers.num) AS cumulative_value
+    , (SELECT SUM(frequency) FROM Numbers) AS total_frequency
+FROM
+    Numbers
+ORDER BY Numbers.num;
+
+
+--- try later
+
+
+
+--Q91
+WITH CTE AS
+(
+SELECT
+    Salary.employee_id
+    , Employee.department_id
+    , amount
+    , TO_CHAR(pay_date, 'YYYY-MM') AS pay_month
+    , ROUND(AVG(amount) OVER (PARTITION BY TO_CHAR(pay_date, 'YYYY-MM')), 2) AS company_avg
+FROM Salary
+JOIN Employee ON Salary.employee_id = Employee.employee_id
+),
+CTE2 AS
+(
+SELECT
+    department_id
+    , pay_month
+    , company_avg
+    , ROUND(AVG(amount), 2) AS dept_avg
+FROM CTE
+GROUP BY
+    department_id
+    , pay_month
+    , company_avg
+)
+SELECT
+    pay_month
+    , department_id
+    , CASE
+        WHEN dept_avg = company_avg THEN 'same'
+        WHEN dept_avg > company_avg THEN 'higher'
+        ELSE 'lower'
+    END
+    AS comparison
+FROM CTE2
+ORDER BY department_id, pay_month;
+
+
+
+--Q92
+WITH CTE AS
+(
+SELECT
+    player_id
+    , MIN(event_date) AS install_date
+FROM Activity
+GROUP BY player_id
+),
+CTE2 AS
+(
+SELECT
+    CTE.player_id
+    , CTE.install_date
+    , Activity.event_date
+FROM CTE
+LEFT JOIN Activity ON (CTE.player_id = Activity.player_id
+AND CTE.install_date = Activity.event_date - 1)
+),
+CTE3 AS
+(
+SELECT
+    install_date
+    , COUNT(*) AS installs
+    , COUNT(event_date) AS retentions
+FROM CTE2
+GROUP BY install_date
+)
+SELECT
+    install_date
+    , installs
+    , retentions / installs AS day1_retention
+FROM CTE3;
+
+
+
+--Q93
+WITH CTE1 AS
+(
+SELECT Players.*, t1.wins
+FROM Players
+JOIN
+(
+SELECT winner, COUNT(*) AS wins
+FROM
+(
+SELECT
+    CASE
+        WHEN first_score > second_score THEN first_player
+        WHEN first_score < second_score THEN second_player
+        WHEN first_score = second_score AND first_player < second_player THEN first_player
+        ELSE second_player
+    END
+    AS winner
+FROM Matches
+)
+GROUP BY winner
+) t1
+ON Players.player_id = t1.winner
+),
+CTE2 AS
+(
+SELECT 
+    player_id
+    , group_id
+    , wins
+    , MAX(wins) OVER (PARTITION BY group_id) AS group_max_wins
+FROM CTE1
+),
+CTE3 AS
+(
+SELECT player_id, group_id, group_max_wins
+FROM CTE2
+WHERE wins = group_max_wins
+),
+CTE4 AS
+(
+SELECT player_id, group_id, group_max_wins, MIN(player_id) OVER (PARTITION BY group_id) AS min_group
+FROM CTE3
+)
+SELECT group_id, player_id
+FROM CTE4
+WHERE player_id = min_group;
+
+
+
+--Q94
+WITH CTE AS
+(
+SELECT
+    Exam.exam_id
+    , Exam.student_id
+    , Student.student_name
+    , Exam.score
+    , MAX(Exam.score) OVER (PARTITION BY Exam.exam_id) AS max_score
+    , MIN(Exam.score) OVER (PARTITION BY Exam.exam_id) AS min_score
+FROM Student
+JOIN Exam ON Student.student_id = Exam.student_id
+)
+SELECT DISTINCT student_id, student_name
+FROM CTE
+WHERE score <> max_score AND score <> min_score
+MINUS
+SELECT DISTINCT student_id, student_name
+FROM CTE
+WHERE score = max_score OR score = min_score;
+
+
+
+--Q95
+--SAME AS Q94
+
+
+
+--Q96
+WITH CTE AS
+(
+SELECT user_id, song_id, song_plays
+FROM songs_history
+UNION
+SELECT
+    user_id
+    , song_id
+    , COUNT(*) AS song_plays
+--    , TO_CHAR(listen_time, 'YYYY-MM-DD')
+FROM songs_weekly
+WHERE TO_CHAR(listen_time, 'YYYY-MM-DD') <= '2022-08-04'
+GROUP BY user_id, song_id
+)
+SELECT user_id, song_id, SUM(song_plays) AS song_plays
+FROM CTE
+GROUP BY user_id, song_id;
+
+
+
+--Q97
+
+
+
+
+
+
+
+
 
 
 
