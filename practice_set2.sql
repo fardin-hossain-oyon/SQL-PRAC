@@ -924,7 +924,23 @@ GROUP BY user_id, song_id;
 
 
 --Q97
-
+WITH CTE AS
+(
+SELECT
+    emails.email_id
+    , CASE
+        WHEN signup_action = 'Confirmed' THEN 1
+        ELSE 0
+    END
+    AS conf
+FROM emails
+LEFT JOIN texts ON emails.email_id = texts.email_id
+WHERE signup_action = 'Confirmed'
+OR signup_action IS NULL
+)
+SELECT
+    ROUND(SUM(conf) / COUNT(*), 2) AS confirm_rate
+FROM CTE;
 
 
 
