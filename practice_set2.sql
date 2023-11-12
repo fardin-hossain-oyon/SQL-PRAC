@@ -735,17 +735,16 @@ WHERE duration > (SELECT SUM(duration)/COUNT(*) FROM Calls)
 
 
 --Q90
+WITH CTE(num,frequency,temp) AS
+(
+    SELECT numbers.num,numbers.frequency,1 AS TEMP FROM numbers
+    UNION ALL
+    SELECT num,frequency,temp+1 FROM CTE WHERE temp+1<=frequency
+)
+SELECT PERCENTILE_CONT(0.50) WITHIN GROUP ( ORDER BY num ) AS median_searches from cte;
 
-SELECT
-    Numbers.*
-    , SUM(Numbers.frequency) OVER (ORDER BY Numbers.num) AS cumulative_value
-    , (SELECT SUM(frequency) FROM Numbers) AS total_frequency
-FROM
-    Numbers
-ORDER BY Numbers.num;
 
-
---- try later
+--- try later without recursion
 
 
 
@@ -944,16 +943,88 @@ FROM CTE;
 
 
 
+--Q98
+WITH CTE AS
+(
+SELECT
+    user_id
+    , tweet_date
+    , COUNT(*) AS tweet_count
+FROM tweets
+GROUP BY user_id, tweet_date
+)
+SELECT
+    user_id
+    , tweet_date
+    , ROUND(AVG(tweet_count) OVER (PARTITION BY user_id ORDER BY tweet_date), 2) AS rolling_avg_3days
+FROM CTE
+ORDER BY user_id, tweet_date;
 
 
 
+--Q99
+WITH CTE AS
+(
+SELECT
+    activities.activity_type
+    , age_breakdown.age_bucket
+    , SUM(activities.time_spent) AS time_spent
+FROM activities
+JOIN age_breakdown ON activities.user_id = age_breakdown.user_id
+WHERE activity_type <> 'chat'
+GROUP BY 
+    activities.activity_type
+    , age_breakdown.age_bucket
+),
+CTE2 AS
+(
+SELECT
+    activity_type
+    , age_bucket
+    , time_spent
+    , ROUND(time_spent / (SUM(time_spent) OVER (PARTITION BY age_bucket)), 4) AS perc
+FROM CTE
+),
+CTE3 AS
+(
+SELECT
+    age_bucket
+    , CASE
+        WHEN activity_type = 'send' THEN perc
+        ELSE NULL
+    END
+    AS send_perc
+    , CASE
+        WHEN activity_type = 'open' THEN perc
+        ELSE NULL
+    END
+    AS open_perc
+FROM CTE2
+)
+SELECT
+    age_bucket
+    , (SUM(send_perc) * 100.0) AS send_perc
+    , (SUM(open_perc) * 100.0) AS open_perc
+FROM CTE3
+GROUP BY age_bucket;
 
 
 
-
-
-
-
+--Q100
+SELECT
+    personal_profiles.profile_id AS profile_id
+FROM
+(
+SELECT
+    employee_company.personal_profile_id
+    , MAX(company_pages.followers) AS max_follower
+FROM employee_company
+JOIN company_pages ON employee_company.company_id = company_pages.company_id
+GROUP BY employee_company.personal_profile_id
+ORDER BY employee_company.personal_profile_id
+) t1
+JOIN personal_profiles ON t1.personal_profile_id = personal_profiles.profile_id
+WHERE t1.max_follower < personal_profiles.followers;
 
 
 
