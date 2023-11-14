@@ -124,9 +124,7 @@ SELECT
     N AS node
     , CASE
         WHEN P IS NULL THEN 'root'
-        WHEN N IN (SELECT DISTINCT t1.n
-                    FROM bst t1, bst t2 
-                    WHERE t1.N = t2.P AND t1.P IS NOT NULL)
+        WHEN N IN (SELECT P FROM bst)
                 THEN 'inner'
         ELSE 'leaf'
     END
