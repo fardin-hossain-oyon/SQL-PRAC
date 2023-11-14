@@ -111,11 +111,21 @@ ORDER BY occurrences ASC, LOWER(occupation) ASC
 --ORDER BY 1;
 
 
-SELECT *
+SELECT
+    LISTAGG(name, ',') WITHIN GROUP (ORDER BY name) AS persons
 FROM occupations
-ORDER BY occupation, name;
+GROUP BY occupation
+ORDER BY occupation;
 
---trying later
+--WITH t1 AS (SELECT name FROM occupations WHERE occupation='Doctor'),
+--t2 AS (SELECT name FROM occupations WHERE occupation='Professor'),
+--t3 AS (SELECT name FROM occupations WHERE occupation='Singer'),
+--t4 AS (SELECT name FROM occupations WHERE occupation='Actor')
+--SELECT DISTINCT t1.name, t2.name, t3.name, t4.name
+--FROM t1
+--FULL OUTER JOIN t2 ON 1=1
+--FULL OUTER JOIN t3 ON 1=1
+--FULL OUTER JOIN t4 ON 1=1;
 
 
 
@@ -179,23 +189,146 @@ GROUP BY
 
 
 
+--Q112
+WITH CTE AS
+(
+SELECT LEVEL L
+FROM DUAL
+CONNECT BY LEVEL<=1000
+),
+CTE2 AS
+(
+SELECT
+    c1.l
+    , CASE 
+        WHEN MOD(c1.l, c2.l) = 0 THEN 1
+        ELSE 0
+    END
+    AS div
+FROM CTE c1, CTE c2
+WHERE c1.l >= c2.l
+),
+CTE3 AS
+(
+SELECT
+    l
+FROM CTE2
+GROUP BY l
+HAVING SUM(div)<=2
+ORDER BY l
+)
+SELECT
+    LISTAGG(l, '&') WITHIN GROUP (ORDER BY l) AS prime_numbers
+FROM CTE3;
+
+
+
+
+--Q113
+SELECT RPAD('*', LEVEL, '*') AS star_pattern
+FROM dual
+CONNECT BY LEVEL <= 20;
+
+
+--Q114
+SELECT LPAD('*', LEVEL, '*') AS star_pattern
+FROM dual
+CONNECT BY LEVEL <= 5
+ORDER BY LEVEL DESC;
+
+
+
+--Q115
+--SAME AS Q103
+
+
+
+
+--Q116
+SELECT DISTINCT
+    f1.X
+    , f1.Y
+FROM functions f1, functions f2
+WHERE f1.X = f2.Y AND f2.X = f1.Y AND f1.X<=f1.Y
+ORDER BY f1.X;
+
+
+
+--Q116(2)
+SELECT name
+FROM Employee
+ORDER BY name ASC;
+
+
+
+--Q117
+--SAME AS 104
+
+
+
+--Q118
+--SAME AS 105
+
+
+
+--Q119
+SELECT
+    year
+    , product_id
+    , curr_year_spend
+    , prev_year_spend
+    ,ROUND(((curr_year_spend - prev_year_spend) / prev_year_spend) * 100, 2) AS yoy_rate
+FROM
+(
+SELECT
+    TO_CHAR(transaction_date, 'YYYY') AS year
+    , product_id
+    , spend as curr_year_spend
+    , LAG(spend, 1) OVER (ORDER BY transaction_date) AS prev_year_spend
+FROM User_transactions
+)
+;
+
+
+--Q120
+--SAME AS Q81
+
+
+--      q121,q122,q123,q124,q125,q126,q127,q128,q129,q130,q131,q132,q133,q134
+--same as q82, q83, q84, q85, q86, q87, q88, q89, q90, q91, q92, q93, q94, q95
+--so is not writing it here
 
 
 
 
 
+--      q135, q136
+--same as q101, q102(same as q101)
+--so, not writing it here
+
+
+--Q122
+WITH CTE(searches,num_users,temp) AS
+(
+    SELECT search_frequency.searches,search_frequency.num_users,1 AS TEMP FROM search_frequency
+    UNION ALL
+    SELECT searches,num_users,temp+1 FROM CTE WHERE temp+1<=num_users
+)
+SELECT PERCENTILE_CONT(0.50) WITHIN GROUP ( ORDER BY searches ) AS median from cte;
+
+
+--        q137,q138,q139,q140,q141,q142
+--same as q106,q107,q108,q109,q110,q111
+--so not writing it here.
 
 
 
+--q143
+--same as q116(The one q116 before q115)
 
 
 
-
-
-
-
-
-
+--Q144
 
 
 
