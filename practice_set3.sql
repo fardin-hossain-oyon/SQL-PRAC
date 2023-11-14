@@ -329,6 +329,129 @@ SELECT PERCENTILE_CONT(0.50) WITHIN GROUP ( ORDER BY searches ) AS median from c
 
 
 --Q144
+SELECT
+    t1.name
+FROM
+(
+SELECT
+    students.id
+    , students.name
+    , friends.friend_id
+    , packages.salary
+FROM students
+JOIN friends ON students.id = friends.id 
+JOIN packages ON students.id = packages.id
+) t1
+JOIN packages ON packages.id = t1.friend_id
+WHERE t1.salary < packages.salary;
+
+
+
+--Q145
+SELECT DISTINCT
+    hackers.hacker_id
+    , hackers.name
+FROM
+(
+SELECT
+    hacker_id
+    , COUNT(*) OVER (PARTITION BY hacker_id) AS win_count
+FROM submissions
+WHERE (challenge_id, score) IN (SELECT challenge_id, MAX(score) FROM submissions GROUP BY challenge_id)
+) t1
+JOIN hackers ON hackers.hacker_id = t1.hacker_id
+WHERE t1.win_count>1;
+
+
+
+
+--Q146
+
+--NOT FIXED YET! TRYING LATER
+WITH CTE AS
+(
+SELECT
+    start_date
+    , end_date
+    , next_task_start_date
+    , next_task_start_date - end_date AS gap
+    , start_date - prev_tast_end_date AS prev_gap
+FROM
+(
+SELECT
+    task_id
+    , start_date
+    , end_date
+    , LEAD(start_date, 1) OVER (ORDER BY end_date) AS next_task_start_date
+    , LAG(end_date, 1) OVER (ORDER BY end_date) AS prev_tast_end_date
+FROM projects
+)
+)
+SELECT
+    CTE.start_date
+    , CTE.end_date
+FROM CTE
+WHERE gap<>0 OR gap IS NULL OR prev_gap<>0 OR prev_gap IS NULL
+;
+
+
+
+
+--Q147
+
+--TRYING AGAIN LATER
+SELECT
+    transactions.*
+    , LEAD(transaction_date, 1) OVER (ORDER BY transaction_date) - transaction_date AS diff
+FROM transactions;
+
+
+
+--Q148
+SELECT
+    COUNT(*) AS unique_relationships
+FROM payments p1
+JOIN payments p2 ON (p1.payer_id = p2.recipient_id AND p1.recipient_id = p2.payer_id)
+WHERE p1.payer_id < p1.recipient_id
+;
+
+
+
+--Q149
+SELECT
+    COUNT(*) AS users
+FROM user_transactions
+WHERE (user_id, transaction_date) IN (SELECT user_id, MIN(transaction_date) FROM user_transactions GROUP BY user_id)
+AND spend > 50
+;
+
+
+
+--Q150
+WITH CTE AS
+(
+SELECT
+    measurement_id
+    , measurement_value
+    , TO_CHAR(measurement_time, 'YYYY-MM-DD') AS tran_day
+    , ROW_NUMBER() OVER (PARTITION BY TO_CHAR(measurement_time, 'YYYY-MM-DD') ORDER BY measurement_time) AS row_num
+FROM measurements
+)
+SELECT DISTINCT
+    c1.tran_day AS measurement_day
+    , (SELECT SUM(c2.measurement_value)
+        FROM CTE c2
+        WHERE c2.tran_day = c1.tran_day AND MOD(c2.row_num, 2)=1)
+        AS odd_sum
+    , (SELECT SUM(c3.measurement_value)
+        FROM CTE c3
+        WHERE c3.tran_day = c1.tran_day AND MOD(c3.row_num, 2)=0)
+        AS even_sum
+FROM CTE c1
+
+
+
+
 
 
 
