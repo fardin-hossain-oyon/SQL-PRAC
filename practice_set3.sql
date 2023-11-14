@@ -415,8 +415,9 @@ ORDER BY t2.end_date-t1.start_date ASC
 
 --TRYING AGAIN LATER
 SELECT
-    transactions.*
-    , LEAD(transaction_date, 1) OVER (ORDER BY transaction_date) - transaction_date AS diff
+    user_id
+    , transaction_date
+    , EXTRACT(DAY FROM (transaction_date-LAG(transaction_date, 1) OVER (PARTITION BY user_id ORDER BY transaction_date))) AS gap
 FROM transactions;
 
 
