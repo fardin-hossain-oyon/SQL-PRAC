@@ -136,6 +136,29 @@ ORDER BY N;
 
 
 
+-- using CONNECT BY
+WITH CTE AS
+(
+SELECT
+    N
+    , P
+    , LEVEL AS lev
+FROM bst
+CONNECT BY PRIOR N = P
+START WITH P IS NULL
+)
+SELECT
+    N AS node
+    , CASE
+        WHEN lev = 1 THEN 'root'
+        WHEN lev = (SELECT MAX(lev) FROM CTE) THEN 'leaf'
+        ELSE 'inner'
+    END
+    AS type_of_node
+FROM CTE
+ORDER BY N;
+
+
 
 --Q111
 SELECT
