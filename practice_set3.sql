@@ -366,8 +366,6 @@ WHERE t1.win_count>1;
 
 
 --Q146
-
---NOT FIXED YET! TRYING LATER
 WITH CTE AS
 (
 SELECT
@@ -376,6 +374,7 @@ SELECT
     , next_task_start_date
     , next_task_start_date - end_date AS gap
     , start_date - prev_tast_end_date AS prev_gap
+    , ROW_NUMBER() OVER (ORDER BY end_date) AS row_num
 FROM
 (
 SELECT
@@ -388,10 +387,25 @@ FROM projects
 )
 )
 SELECT
-    CTE.start_date
-    , CTE.end_date
+    t1.start_date
+    , t2.end_date
+FROM
+(
+SELECT
+    start_date
+    , ROW_NUMBER() OVER (ORDER BY end_date) AS row_num
 FROM CTE
-WHERE gap<>0 OR gap IS NULL OR prev_gap<>0 OR prev_gap IS NULL
+WHERE prev_gap IS NULL OR prev_gap<>0
+) t1,
+(
+SELECT
+    end_date
+    , ROW_NUMBER() OVER (ORDER BY end_date) AS row_num
+FROM CTE
+WHERE gap IS NULL OR gap<>0
+) t2
+WHERE t1.row_num = t2.row_num
+ORDER BY t2.end_date-t1.start_date ASC
 ;
 
 
