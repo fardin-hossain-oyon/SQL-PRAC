@@ -80,7 +80,7 @@ SELECT
 FROM occupations
 ORDER BY name ASC;
 
---UNION
+UNION
 
 SELECT
     'There are a total of ' ||
@@ -413,12 +413,36 @@ ORDER BY t2.end_date-t1.start_date ASC
 
 --Q147
 
---TRYING AGAIN LATER
+WITH CTE AS
+(
 SELECT
     user_id
     , transaction_date
-    , EXTRACT(DAY FROM (transaction_date-LAG(transaction_date, 1) OVER (PARTITION BY user_id ORDER BY transaction_date))) AS gap
-FROM transactions;
+    , EXTRACT(DAY FROM (transaction_date-LAG(transaction_date, 1) OVER (PARTITION BY user_id ORDER BY transaction_date))) AS prev_gap
+    , EXTRACT(DAY FROM (LEAD(transaction_date, 1) OVER (PARTITION BY user_id ORDER BY transaction_date) - transaction_date)) AS next_gap
+FROM transactions
+)
+SELECT DISTINCT
+    t1.user_id
+FROM
+(
+SELECT
+    user_id
+    , transaction_date AS start_date
+    , ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY transaction_date) AS row_num
+FROM CTE
+WHERE (prev_gap IS NULL OR prev_gap>1) AND next_gap=1
+) t1,
+(
+SELECT
+    user_id
+    , transaction_date AS end_date
+    , ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY transaction_date) AS row_num
+FROM CTE
+WHERE (next_gap IS NULL OR next_gap>1) AND prev_gap=1
+) t2
+WHERE t1.row_num = t2.row_num
+AND (EXTRACT(DAY FROM(t2.end_date - t1.start_date)) + 1)>=3;
 
 
 
@@ -462,7 +486,179 @@ SELECT DISTINCT
         FROM CTE c3
         WHERE c3.tran_day = c1.tran_day AND MOD(c3.row_num, 2)=0)
         AS even_sum
-FROM CTE c1
+FROM CTE c1;
+
+
+
+--Q151
+--SAME AS Q147
+
+
+
+--Q152
+WITH CTE AS
+(
+SELECT
+    rental_id
+    , LISTAGG(amenity, '&') WITHIN GROUP (ORDER BY amenity) AS amenity_string
+FROM
+(
+SELECT DISTINCT
+    rental_id
+    , amenity
+FROM rental_amenities
+)
+GROUP BY rental_id
+)
+SELECT
+    COUNT(*) AS matching_airbnbs
+FROM CTE c1, CTE c2
+WHERE c1.amenity_string = c2.amenity_string
+AND c1.rental_id < c2.rental_id;
+    
+
+
+--Q153
+SELECT
+    advertiser_id
+    , ROUND(SUM(revenue)/SUM(spend), 2) AS ROAS
+FROM ad_campaigns
+GROUP BY advertiser_id
+ORDER BY advertiser_id;
+
+
+
+
+--Q154
+SELECT
+    employee_id
+    , salary
+    , CASE
+        WHEN salary<half_avg_sal THEN 'underpaid'
+        ELSE 'overpaid'
+    END
+    AS status
+FROM
+(
+SELECT
+    employee_id
+    , salary
+    , 2*(AVG(salary) OVER (PARTITION BY title)) AS double_avg_sal
+    , (AVG(salary) OVER (PARTITION BY title))/2 AS half_avg_sal
+FROM employee_pay
+)
+WHERE salary > double_avg_sal OR salary < half_avg_sal;
+
+
+
+--Q155
+--SAME AS 148
+
+
+
+--Q156
+SELECT
+    COUNT(DISTINCT user_id) AS repeat_purchasers
+FROM
+(
+SELECT
+    user_id
+    , product_id
+    , COUNT(DISTINCT TO_CHAR(purchase_date, 'YYYY-MM-DD')) AS distinct_dates
+FROM purchases
+GROUP BY
+    user_id
+    , product_id
+)
+WHERE distinct_dates > 1
+;
+
+
+
+
+--Q157
+SELECT DISTINCT
+    day
+    , SUM(gain) OVER (ORDER BY day) AS balance
+FROM
+(
+SELECT
+    TO_CHAR(transaction_date, 'MM/DD/YYYY') AS day
+    , CASE
+        WHEN TYPE = 'withdrawal' THEN (-1)*amount
+        ELSE amount
+    END
+    AS gain
+FROM transactions
+)
+;
+
+
+
+--Q158
+WITH CTE AS 
+(
+SELECT
+    category
+    , product
+    , total_spent
+    , RANK() OVER (PARTITION BY category ORDER BY total_spent) AS rank
+FROM
+(
+SELECT 
+    category
+    , product
+    , SUM(spend) AS total_spent
+FROM product_spend
+WHERE TO_CHAR(transaction_date, 'YYYY') = '2022'
+GROUP BY category, product
+)
+)
+SELECT
+    category
+    , product
+    , total_spent
+FROM CTE
+WHERE rank<3
+ORDER BY category, total_spent DESC
+;
+
+
+
+--Q159
+SELECT
+    week AS signup_week
+    , ROUND((SUM(churn_or_not)/COUNT(*)) * 100, 2) AS churn_rate
+FROM
+(
+SELECT
+    user_id
+    , CASE
+        WHEN EXTRACT(DAY FROM(last_login-signup_date)) < 28
+            THEN 1
+        ELSE 0
+    END
+    AS churn_or_not
+    , TO_NUMBER(TO_CHAR(signup_date, 'WW'))-21 AS week
+FROM users
+)
+GROUP BY signup_week
+;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

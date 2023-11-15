@@ -592,8 +592,14 @@ GROUP BY c2.month;
 
 
 --Q83
-SELECT MEDIAN(num_users) AS median_num_users
-FROM search_frequency;
+WITH CTE(searches,num_users,temp) AS
+(
+    SELECT search_frequency.searches,search_frequency.num_users,1 AS TEMP FROM search_frequency
+    UNION ALL
+    SELECT searches,num_users,temp+1 FROM CTE WHERE temp+1<=num_users
+)
+SELECT PERCENTILE_CONT(0.50) WITHIN GROUP ( ORDER BY searches ) AS median from cte;
+
 
 
 --Q84
