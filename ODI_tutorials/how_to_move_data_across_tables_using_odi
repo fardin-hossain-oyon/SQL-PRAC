@@ -1,0 +1,43 @@
+How to do table mapping i.e. moving data from one table to another using Oracle Data Integrator?
+
+Step-1: Create two models (select "New Models and Topology" option in Design --> Models section). Each model corresponds to a schema in the database. Specific tables can be selected using the reverse engineer tab.
+
+
+Step-2: Create a new project.
+
+
+Step-3: In the First Folder --> Mappings section, create new mapping.
+
+
+Step-4: Drag and drop the tables and connect them to establish bridge for move operation.
+
+
+Step-5: Select Loading Knowledge Model to "LKM SQL to SQL"
+
+
+Step-6: Select Integration Knowledge Model to "IKM Oracle Insert Global"
+
+
+Step-7: Set Check Knowledge Model as default.
+
+
+Step-8: Save and execute/run.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
